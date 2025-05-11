@@ -1,7 +1,6 @@
 # 📚 Project READMEs
 
 ## 1. ⏱️ Date Difference Calculator: Simple Date Comparison Tool in Rust
-> Here is a sample code [url](https://github.com/BiMalxMe/Rust/blob/main/src/Practices/DateDifference.rs)
 
 This Rust application, `Date Difference Calculator`, provides a simple command-line utility to calculate the exact number of days between two dates. It uses the `chrono` crate for date parsing and calculation.
 
@@ -99,3 +98,30 @@ hello brother 3
 ### 🔄 Dependencies
 - 📦 tokio: For asynchronous I/O operations
 - 📦 chrono: For timestamp generation
+
+## 4. ⏱️ MathQuiz: Arithmetic Game with Timer in Rust
+
+
+> Here is a sample code [url](https://github.com/BiMalxMe/Rust/blob/main/src/Practices/MathQuiz.rs)
+
+This Rust application, `MathQuiz`, is a small command-line math quiz that tests your mental arithmetic using randomly generated questions and tracks how fast and accurately you answer.
+
+### 🔑 Key Features
+- ✅ Randomly generates 5 math problems using +, -, *, /
+- ✅ Uses `eval` crate to compute expressions dynamically
+- ✅ Times the total duration taken to solve
+- ✅ Provides final score out of 5
+
+### 📋 Example Output
+![Screen Shot 2025-05-11 at 08 52 51](https://github.com/user-attachments/assets/84aee396-852b-4531-a5a6-0e8ae6bc7ffc)
+
+
+### 🚀 Usage
+1. Run the application  
+2. Solve 5 math problems as quickly as possible  
+3. Get score and time summary
+
+### 🔄 Dependencies
+- 📦 eval: For evaluating math expressions
+- 📦 rand: For generating random numbers and operations
+- 📦 std: For I/O and timing utilities
