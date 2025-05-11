@@ -21,8 +21,9 @@ fn main() {
     //Reset The code into its default state
     execute!(
         out,
-        SetBackgroundColor(Color::Reset),
-        SetForegroundColor(Color::Reset)
+        SetBackgroundColor(Color::Reset),// can do this also rather than doing manually
+        SetForegroundColor(Color::Reset)//         crossterm::style::ResetColor
+
     )
     .unwrap();
     //test the changes after the reset
