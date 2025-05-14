@@ -125,3 +125,40 @@ This Rust application, `MathQuiz`, is a small command-line math quiz that tests 
 - 📦 eval: For evaluating math expressions
 - 📦 rand: For generating random numbers and operations
 - 📦 std: For I/O and timing utilities
+
+## 5. 🧾 Terminal Todo Viewer: Interactive TUI for Task Lists in Rust
+> Here is a sample code [url](https://github.com/BiMalxMe/Rust/blob/main/src/Practices/TodoList.rs)
+
+This Rust application, `Terminal Todo Viewer`, creates a simple Text-based User Interface (TUI) using the `ratatui` and `crossterm` crates. It allows users to input, display, and manage a todo list interactively from the terminal.
+
+### 🔑 Key Features
+- ✅ Add items to a list dynamically
+- ✅ View all added items in a scrollable interface
+- ✅ Use `"clear"` command to reset the list
+- ✅ Real-time terminal updates without pressing Enter for every input
+
+### 📋 Example Output
+![Screen Shot 2025-05-14 at 22 15 45](https://github.com/user-attachments/assets/a406ca37-a91d-48f4-89a6-1c5c5b23605d)
+
+### 🚀 Usage
+1. Run the application in terminal
+2. Type to add a new list item; press `Enter` to submit
+3. Type `clear` and press `Enter` to clear the list
+4. Press `q` to quit the application
+
+### 🧩 Code Overview
+```rust
+let lines = alllist
+    .iter()
+    .enumerate()
+    .map(|(i, s)| Line::from(format!("{}. {}", i + 1, s)))
+    .collect::<Vec<_>>();
+
+let paragraph1 = Paragraph::new(Text::from(lines)).block(
+    Block::default().title(" Total Lists ").borders(Borders::ALL),
+);
+
+let paragraph2 = Paragraph::new(Line::from(input_text.clone())).block(
+    Block::default().title("Add new List ------ Enter 'clear' to Clear ").borders(Borders::ALL),
+);
+
