@@ -8,7 +8,21 @@ fn group_shifted_strings(words: Vec<&str>) -> Vec<Vec<String>> {
         let key = get_shift_key(word);
         groups.entry(key).or_default().push(word.to_string());
     }
+    //converts this
+    // {
+    //     "1,1," => ["abc", "bcd", "xyz"],
+    //     "25,"  => ["az", "ba"],
+    //     "1,1," => already exists,
+    //     "12,1," => ["mln"]
+    // }
+    // to
+    // vec![
+    //     vec!["abc", "bcd", "xyz"],
+    //     vec!["az", "ba"],
+    //     vec!["mln"]
+    // ]
 
+    //takes just the values
     groups.into_values().collect()
 }
 
@@ -31,7 +45,7 @@ fn get_shift_key(word: &str) -> String {
 }
 
 fn main() {
-    let words = vec!["abc", "bcd", "xyz", "az", "ba","mln"];
+    let words = vec!["abc", "bcd", "xyz", "az", "ba", "mln"];
     let grouped = group_shifted_strings(words);
 
     for group in grouped {
