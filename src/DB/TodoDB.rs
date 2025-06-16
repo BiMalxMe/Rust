@@ -40,7 +40,8 @@ impl Todo {
         )
         .bind(&new_todo.title)
         .bind(&new_todo.description)
-        .bind(&new_todo.deadline) // Now correctly using NaiveDateTime
+        // Now correctly using NaiveDateTime
+        .bind(&new_todo.deadline) 
         .execute(pool)
         .await?;
         Ok(())
@@ -106,3 +107,15 @@ async fn main() -> Result<(), sqlx::Error> {
 
     Ok(())
 }
+
+//sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "chrono"] }
+
+// This tells Cargo:
+
+// "Give me SQLx version 0.7, and I’ll be working with:
+
+// PostgreSQL databases,
+
+// the Tokio runtime with native TLS,
+
+// and I want to use chrono datetime types in my queries."
