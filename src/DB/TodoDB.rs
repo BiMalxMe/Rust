@@ -1,4 +1,4 @@
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{postgres::PgPoolOptions, PgPool,Row};
 use dotenvy::dotenv;
 use std::{env, io::stdin};
 use chrono::NaiveDateTime;
@@ -46,8 +46,43 @@ impl Todo {
         .await?;
         Ok(())
     }
-}
+     async fn view_all(pool: &PgPool) -> Result<(), sqlx::Error> {
+        let rows = sqlx::query(
+            r#"
+            SELECT id, title, description, completed, deadline
+            FROM todo
+            ORDER BY id
+            "#
+        )
+        .fetch_all(pool)
+        .await?;
 
+        if rows.is_empty() {
+            println!("No todos found.");
+        } else {
+            println!("\n--- All Todos ---");
+            for row in rows {
+                let id: i32 = row.get("id");
+                let title: String = row.get("title");
+                let description: String = row.get("description");
+                let completed: bool = row.get("completed");
+                let deadline: Option<NaiveDateTime> = row.get("deadline");
+
+                println!("ID: {}", id);
+                println!("Title: {}", title);
+                println!("Description: {}", description);
+                println!("Completed: {}", completed);
+                match deadline {
+                    Some(d) => println!("Deadline: {}", d),
+                    None => println!("Deadline: None"),
+                }
+                println!("-------------------------");
+            }
+        }
+
+        Ok(())
+    }
+}
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
     dotenv().ok();
@@ -63,42 +98,60 @@ async fn main() -> Result<(), sqlx::Error> {
     Todo::create_table(&pool).await?;
     println!("'todo' table ensured to exist.");
 
-    println!("\n--- Add New Todo ---");
+    println!("\nChoose an action:");
+    println!("1. Add New Todo");
+    println!("2. View All Todos");
+    println!("Enter your choice (1 or 2):");
 
-    println!("Enter title");
-    let mut title = String::new();
-    stdin().read_line(&mut title).expect("Failed to read title");
-    let title = title.trim().to_string();
+    let mut choice = String::new();
+    stdin().read_line(&mut choice).expect("Failed to read input");
+    let choice = choice.trim();
 
-    println!("Enter description:");
-    let mut description = String::new();
-    stdin().read_line(&mut description).expect("Failed to read description");
-    //trim returns the &str while trimming so we use to_string()
-    let description = description.trim().to_string();
+    match choice {
+        "1" => {
+            println!("Enter title:");
+            let mut title = String::new();
+            stdin().read_line(&mut title).expect("Failed to read title");
+            let title = title.trim().to_string();
 
-    println!("Enter deadline (YYYY-MM-DD HH:MM:SS, optional, press Enter to skip)");
-    let mut deadline_str = String::new();
-    stdin().read_line(&mut deadline_str).expect("Failed to read deadline");
-    
-    //can also be empty so 
-    let deadline = if deadline_str.trim().is_empty() {
-        None
-    } else {
-        match NaiveDateTime::parse_from_str(deadline_str.trim(), "%Y-%m-%d %H:%M:%S") {
-            Ok(dt) => Some(dt),
-            Err(_) => {
-                println!("Invalid deadline format. Skipping deadline.");
+            println!("Enter description:");
+            let mut description = String::new();
+            stdin().read_line(&mut description).expect("Failed to read description");
+            let description = description.trim().to_string();
+
+            println!("Enter deadline (YYYY-MM-DD HH:MM:SS, optional, press Enter to skip):");
+            let mut deadline_str = String::new();
+            stdin().read_line(&mut deadline_str).expect("Failed to read deadline");
+
+            let deadline = if deadline_str.trim().is_empty() {
                 None
+            } else {
+                match NaiveDateTime::parse_from_str(deadline_str.trim(), "%Y-%m-%d %H:%M:%S") {
+                    Ok(dt) => Some(dt),
+                    Err(_) => {
+                        println!("Invalid deadline format. Skipping deadline.");
+                        None
+                    }
+                }
+            };
+
+            let new_todo = NewTodo { title, description, deadline };
+
+            match Todo::insert(&pool, new_todo).await {
+                Ok(_) => println!("Todo added successfully!"),
+                Err(e) => eprintln!("Error adding todo: {}", e),
             }
         }
-    };
 
-    let new_todo = NewTodo { title, description, deadline };
+        "2" => {
+            if let Err(e) = Todo::view_all(&pool).await {
+                eprintln!("Error fetching todos: {}", e);
+            }
+        }
 
-    if let Err(e) = Todo::insert(&pool, new_todo).await {
-        eprintln!("Error adding todo: {}", e);
-    } else {
-        println!("Todo added successfully!");
+        _ => {
+            println!("Invalid choice.");
+        }
     }
 
     println!("\nPress Enter to exit...");
@@ -107,6 +160,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     Ok(())
 }
+
 
 //sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "chrono"] }
 
