@@ -12,6 +12,19 @@ struct NewTodo {
 struct Todo;
 
 impl Todo {
+    async fn update_completion(pool : &PgPool,id : i32) -> Result<(),sqlx::Error>{
+        sqlx::query(
+            r#"
+           UPDATE  todo 
+           SET completed=NOT completed
+           WHERE id=$1
+            "#
+        )
+        .bind(id)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
     /// Create the 'todo' table if it doesn't exist
     async fn create_table(pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query(
@@ -97,11 +110,12 @@ async fn main() -> Result<(), sqlx::Error> {
 
     Todo::create_table(&pool).await?;
     println!("'todo' table ensured to exist.");
-
+    loop{
     println!("\nChoose an action:");
     println!("1. Add New Todo");
     println!("2. View All Todos");
-    println!("Enter your choice (1 or 2):");
+    println!("3. Update the Completion");
+    println!("Enter your choice (1 or 2 or 3):");
 
     let mut choice = String::new();
     stdin().read_line(&mut choice).expect("Failed to read input");
@@ -149,10 +163,23 @@ async fn main() -> Result<(), sqlx::Error> {
             }
         }
 
+        "3" => {
+            println!("Enter the id whose completion you wanna toggle");
+            let mut inputthree = String::new();
+            stdin().read_line(&mut inputthree).expect("Failed to read deadline");
+            let parsedid : i32 = inputthree.trim().parse().expect("An Error Occurred while parsing");
+            if let Err(e) = Todo::update_completion(&pool,parsedid).await {
+                eprintln!("Error fetching todos: {}", e);
+            }
+        }
+        "q" => {
+            break;
+        }
         _ => {
             println!("Invalid choice.");
         }
     }
+}
 
     println!("\nPress Enter to exit...");
     let mut _dummy = String::new();
